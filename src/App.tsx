@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { LayoutDashboard, Zap, Settings, LogOut, Lock, Mail, ArrowRight, Loader2 } from 'lucide-react';
 import { supabase } from './lib/supabase';
+import { Session } from '@supabase/supabase-js'; // Import the proper type
 
 // --- COMPONENT: LOGIN SCREEN ---
 const LoginScreen = () => {
@@ -12,8 +13,11 @@ const LoginScreen = () => {
     e.preventDefault();
     setLoading(true);
     const { error } = await supabase.auth.signInWithOtp({ email });
-    if (error) setMessage(error.message);
-    else setMessage('Check your email for the magic link!');
+    if (error) {
+      setMessage(error.message);
+    } else {
+      setMessage('Check your email for the magic link!');
+    }
     setLoading(false);
   };
 
@@ -49,7 +53,8 @@ const LoginScreen = () => {
 };
 
 // --- COMPONENT: DASHBOARD ---
-const Dashboard = ({ session }: { session: any }) => {
+// Fixed: Added explicit type for 'session'
+const Dashboard = ({ session }: { session: Session }) => {
   return (
     <div className="min-h-screen bg-black text-white flex flex-col md:flex-row">
       {/* Sidebar */}
@@ -94,7 +99,7 @@ const Dashboard = ({ session }: { session: any }) => {
 
 // --- MAIN APP LOGIC ---
 export default function App() {
-  const [session, setSession] = useState<any>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -118,4 +123,4 @@ export default function App() {
 }
 
 
-            
+          
