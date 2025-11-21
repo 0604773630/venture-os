@@ -1,16 +1,40 @@
-import { LayoutDashboard, Zap, Settings } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { supabase } from './lib/supabase'
+import { LayoutDashboard, Zap, Settings, LogOut } from 'lucide-react'
+import Auth from './pages/Auth'
 
 function App() {
+  const [session, setSession] = useState<any>(null)
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session)
+    })
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session)
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
+
+  if (!session) {
+    return <Auth />
+  }
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 text-center">
-      <div className="mb-8">
+      <div className="mb-8 relative">
         <div className="w-16 h-16 bg-blue-600 rounded-2xl mx-auto flex items-center justify-center mb-4 shadow-lg shadow-blue-900/20">
           <Zap className="w-8 h-8 text-white" />
         </div>
         <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
           Venture OS
         </h1>
-        <p className="text-slate-500 mt-2">System Online. Ready for modules.</p>
+        <p className="text-slate-500 mt-2">Welcome back, Founder.</p>
+        <button onClick={() => supabase.auth.signOut()} className="absolute top-0 right-[-60px] text-slate-600 hover:text-white"><LogOut size={20}/></button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-md">
